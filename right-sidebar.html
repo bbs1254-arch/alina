@@ -5,12 +5,103 @@
 	<meta charset="utf-8" />
 	<meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no" />
 	<link rel="stylesheet" href="assets/css/main.css" />
+
+	<style>
+      /* 3D Canvas 배경 */
+      #canvas-background {
+         position: fixed;
+         top: 0;
+         left: 0;
+         width: 100%;
+         height: 100%;
+         z-index: -1;
+         /* 3D 배경 JS에서 배경색이 설정되지만, 기본 그라데이션 명시 */
+         background: linear-gradient(135deg, #02011b 0%, #08053a 50%, #150849 100%);
+      }
+
+      /* 마우스 따라다니는 별/눈송이 (index.html, left-sidebar.html과 동일하게 설정) */
+      .star-trail {
+         position: fixed;
+         width: 3px;
+         height: 3px;
+         background: #ffffff;
+         border-radius: 50%;
+         pointer-events: none;
+         z-index: 99999;
+         box-shadow: 0 0 5px rgba(255, 255, 255, 1);
+         animation: fadeout 1.5s ease-out forwards;
+      }
+
+      @keyframes fadeout {
+         0% {
+            opacity: 1;
+            transform: scale(1);
+         }
+         100% {
+            opacity: 0;
+            transform: scale(0.1);
+         }
+      }
+
+      /* === 1. 래퍼 요소의 배경을 강제로 투명하게 설정 (HTML5 UP 충돌 해결) === */
+      #header-wrapper, #main-wrapper, #footer-wrapper {
+         background-color: transparent !important;
+      }
+
+      /* === 2. 콘텐츠 섹션 (Glassmorphism) 투명도 및 가독성 강화 === */
+      /* 사이드바, 콘텐츠, 헤더, 위젯 등 모든 콘텐츠 박스에 적용 (투명도 0.05로 통일) */
+      #header, #main section, #content section, #sidebar .widget, .row article {
+         background-color: rgba(255, 255, 255, 0.05) !important;
+         backdrop-filter: blur(8px);
+         -webkit-backdrop-filter: blur(8px);
+         border-radius: 10px;
+         border: 1px solid rgba(255, 255, 255, 0.2);
+         box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
+      }
+
+      /* HTML5 UP 템플릿의 다른 섹션/컨테이너 배경도 투명하게 강제 오버라이드 */
+      #header, #main-wrapper > .container, #footer-wrapper, #content, #sidebar {
+         background-color: transparent !important;
+      }
+
+      /* === 3. 버튼 크기 및 스타일 조정 (일관성 유지) === */
+      .button {
+         display: inline-block !important;
+         width: auto !important;
+
+         background: linear-gradient(135deg, rgba(100, 100, 255, 0.4), rgba(150, 100, 255, 0.3)) !important;
+         border: 2px solid rgba(255, 255, 255, 0.6) !important;
+         box-shadow: 0 0 20px rgba(100, 100, 255, 0.4);
+         transition: all 0.3s ease;
+      }
+
+      .button:hover {
+         background: linear-gradient(135deg, rgba(150, 150, 255, 0.6), rgba(200, 150, 255, 0.5)) !important;
+         box-shadow: 0 0 30px rgba(150, 150, 255, 0.7);
+         transform: translateY(-3px);
+      }
+
+      /* 텍스트 가독성 강화 (일관성 유지) */
+      body { color: #ffffff !important; }
+      h1, h2, h3, h4, h5, h6 { color: #ffffff !important; text-shadow: 0 0 5px rgba(0, 0, 0, 0.8); }
+      p, li, a { color: #e8e8e8 !important; text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.6); }
+      a:hover { color: #ffffff !important; text-shadow: 0 0 10px rgba(150, 200, 255, 0.8); }
+
+      /* 기타 패딩/마진 설정 유지 */
+      #header { padding: 1.5em 0; }
+      #main-wrapper { padding: 6em 0; }
+
+      /* NOTE: 사용자님의 기존 JS 크리스마스 배경을 위한 CSS는 제거하고,
+               전 페이지와 동일한 마우스 트레일 및 박스 스타일로 통일했습니다. */
+   </style>
 </head>
 
 <body class="is-preload right-sidebar">
+
+<canvas id="canvas-background"></canvas>
+
 <div id="page-wrapper">
 
-	<!-- Header -->
 	<div id="header-wrapper">
 		<header id="header" class="container">
 			<div id="logo">
@@ -29,12 +120,10 @@
 		</header>
 	</div>
 
-	<!-- Main -->
 	<div id="main-wrapper">
 		<div class="container">
 			<div class="row gtr-200">
 
-				<!-- Content -->
 				<div class="col-8 col-12-medium">
 					<div id="content">
 						<section class="last">
@@ -84,7 +173,6 @@
 					</div>
 				</div>
 
-				<!-- Sidebar (Right) -->
 				<div class="col-4 col-12-medium">
 					<div id="sidebar">
 						<section class="widget">
@@ -110,7 +198,6 @@
 		</div>
 	</div>
 
-	<!-- Footer -->
 	<div id="footer-wrapper">
 		<footer id="footer" class="container">
 			<div class="row">
@@ -128,12 +215,266 @@
 
 </div>
 
-<!-- Scripts -->
-<script src="assets/js/jquery.min.js"></script>
-<script src="assets/js/jquery.dropotron.min.js"></script>
-<script src="assets/js/browser.min.js"></script>
-<script src="assets/js/breakpoints.min.js"></script>
-<script src="assets/js/util.js"></script>
-<script src="assets/js/main.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script>
+   // 3D 크리스마스 배경 (사용자님의 기존 JS 코드 유지)
+   const canvas = document.getElementById('canvas-background');
+   const scene = new THREE.Scene();
+   const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+   const renderer = new THREE.WebGLRenderer({ canvas: canvas, alpha: true });
+
+   renderer.setSize(window.innerWidth, window.innerHeight);
+   camera.position.set(0, 3, 12);
+
+   // 밤하늘 배경 (어두운 파란색)
+   scene.background = new THREE.Color(0x0A1A3A);
+
+   // 눈 덮인 땅
+   const groundGeometry = new THREE.PlaneGeometry(100, 100);
+   const groundMaterial = new THREE.MeshBasicMaterial({ color: 0xFFFFFF });
+   const ground = new THREE.Mesh(groundGeometry, groundMaterial);
+   ground.rotation.x = -Math.PI / 2;
+   ground.position.y = -1;
+   scene.add(ground);
+
+   // 달
+   const moonGeometry = new THREE.SphereGeometry(2, 32, 32);
+   const moonMaterial = new THREE.MeshBasicMaterial({ color: 0xFFFACD });
+   const moon = new THREE.Mesh(moonGeometry, moonMaterial);
+   moon.position.set(-15, 15, -30);
+   scene.add(moon);
+
+   // 별들
+   const starGeometry = new THREE.BufferGeometry();
+   const starCount = 500;
+   const positions = new Float32Array(starCount * 3);
+   for (let i = 0; i < starCount * 3; i++) {
+      positions[i] = (Math.random() - 0.5) * 100;
+      if (i % 3 === 1) positions[i] = Math.abs(positions[i]);
+   }
+   starGeometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
+   const starMaterial = new THREE.PointsMaterial({
+      color: 0xFFFFFF,
+      size: 0.15,
+      transparent: true,
+      opacity: 0.8
+   });
+   const stars = new THREE.Points(starGeometry, starMaterial);
+   scene.add(stars);
+
+   // 루돌프 만들기
+   function createReindeer(x, z) {
+      const group = new THREE.Group();
+      const bodyGeometry = new THREE.BoxGeometry(1.2, 0.8, 0.6);
+      const bodyMaterial = new THREE.MeshBasicMaterial({ color: 0x8B4513 });
+      const body = new THREE.Mesh(bodyGeometry, bodyMaterial);
+      body.position.y = 0.5;
+      group.add(body);
+      const headGeometry = new THREE.BoxGeometry(0.5, 0.5, 0.5);
+      const headMaterial = new THREE.MeshBasicMaterial({ color: 0xA0522D });
+      const head = new THREE.Mesh(headGeometry, headMaterial);
+      head.position.set(0.6, 0.8, 0);
+      group.add(head);
+      const noseGeometry = new THREE.SphereGeometry(0.15, 8, 8);
+      const noseMaterial = new THREE.MeshBasicMaterial({
+         color: 0xFF0000,
+         emissive: 0xFF0000
+      });
+      const nose = new THREE.Mesh(noseGeometry, noseMaterial);
+      nose.position.set(0.9, 0.8, 0);
+      group.add(nose);
+      const antlerGeometry = new THREE.CylinderGeometry(0.05, 0.05, 0.5);
+      const antlerMaterial = new THREE.MeshBasicMaterial({ color: 0x8B4513 });
+      const leftAntler = new THREE.Mesh(antlerGeometry, antlerMaterial);
+      leftAntler.position.set(0.5, 1.2, -0.15);
+      leftAntler.rotation.z = 0.3;
+      group.add(leftAntler);
+      const rightAntler = new THREE.Mesh(antlerGeometry, antlerMaterial);
+      rightAntler.position.set(0.5, 1.2, 0.15);
+      rightAntler.rotation.z = -0.3;
+      group.add(rightAntler);
+      const legGeometry = new THREE.CylinderGeometry(0.1, 0.1, 0.6);
+      const legMaterial = new THREE.MeshBasicMaterial({ color: 0x654321 });
+      for (let i = 0; i < 4; i++) {
+         const leg = new THREE.Mesh(legGeometry, legMaterial);
+         leg.position.set((i % 2) * 0.6 - 0.3, 0, (Math.floor(i / 2) * 0.4 - 0.2));
+         group.add(leg);
+      }
+      group.position.set(x, -1, z);
+      return group;
+   }
+
+   const reindeers = [];
+   for (let i = 0; i < 3; i++) {
+      const reindeer = createReindeer(-4 + i * 2, 0);
+      reindeers.push(reindeer);
+      scene.add(reindeer);
+   }
+
+   // 산타클로스 만들기
+   function createSanta() {
+      const group = new THREE.Group();
+      const bodyGeometry = new THREE.CylinderGeometry(0.6, 0.8, 1.2);
+      const bodyMaterial = new THREE.MeshBasicMaterial({ color: 0xDC143C });
+      const body = new THREE.Mesh(bodyGeometry, bodyMaterial);
+      body.position.y = 0.6;
+      group.add(body);
+      const headGeometry = new THREE.SphereGeometry(0.4, 16, 16);
+      const headMaterial = new THREE.MeshBasicMaterial({ color: 0xFFDBAC });
+      const head = new THREE.Mesh(headGeometry, headMaterial);
+      head.position.y = 1.4;
+      group.add(head);
+      const hatGeometry = new THREE.ConeGeometry(0.45, 0.6, 8);
+      const hatMaterial = new THREE.MeshBasicMaterial({ color: 0xDC143C });
+      const hat = new THREE.Mesh(hatGeometry, hatMaterial);
+      hat.position.y = 2;
+      group.add(hat);
+      const pomGeometry = new THREE.SphereGeometry(0.15, 8, 8);
+      const pomMaterial = new THREE.MeshBasicMaterial({ color: 0xFFFFFF });
+      const pom = new THREE.Mesh(pomGeometry, pomMaterial);
+      pom.position.y = 2.4;
+      group.add(pom);
+      const beardGeometry = new THREE.SphereGeometry(0.3, 8, 8);
+      const beardMaterial = new THREE.MeshBasicMaterial({ color: 0xFFFFFF });
+      const beard = new THREE.Mesh(beardGeometry, beardMaterial);
+      beard.position.set(0, 1.2, 0.3);
+      beard.scale.y = 0.7;
+      group.add(beard);
+      const bagGeometry = new THREE.SphereGeometry(0.5, 8, 8);
+      const bagMaterial = new THREE.MeshBasicMaterial({ color: 0x8B4513 });
+      const bag = new THREE.Mesh(bagGeometry, bagMaterial);
+      bag.position.set(-0.6, 0.8, -0.3);
+      group.add(bag);
+      group.position.set(3, -1, 0);
+      return group;
+   }
+
+   const santa = createSanta();
+   scene.add(santa);
+
+   // 썰매 만들기
+   const sledGeometry = new THREE.BoxGeometry(2, 0.3, 1.5);
+   const sledMaterial = new THREE.MeshBasicMaterial({ color: 0x8B0000 });
+   const sled = new THREE.Mesh(sledGeometry, sledMaterial);
+   sled.position.set(2, -0.7, 0);
+   scene.add(sled);
+
+   // 크리스마스 트리
+   function createTree(x, z) {
+      const group = new THREE.Group();
+      const trunkGeometry = new THREE.CylinderGeometry(0.2, 0.3, 1);
+      const trunkMaterial = new THREE.MeshBasicMaterial({ color: 0x8B4513 });
+      const trunk = new THREE.Mesh(trunkGeometry, trunkMaterial);
+      trunk.position.y = -0.5;
+      group.add(trunk);
+      for (let i = 0; i < 3; i++) {
+         const treeGeometry = new THREE.ConeGeometry(1.2 - i * 0.3, 1, 8);
+         const treeMaterial = new THREE.MeshBasicMaterial({ color: 0x228B22 });
+         const treePart = new THREE.Mesh(treeGeometry, treeMaterial);
+         treePart.position.y = i * 0.6 + 0.3;
+         group.add(treePart);
+      }
+      const starGeo = new THREE.SphereGeometry(0.15, 5, 5);
+      const starMat = new THREE.MeshBasicMaterial({ color: 0xFFD700 });
+      const star = new THREE.Mesh(starGeo, starMat);
+      star.position.y = 2.2;
+      group.add(star);
+      group.position.set(x, -1, z);
+      return group;
+   }
+
+   scene.add(createTree(-8, -3));
+   scene.add(createTree(8, -2));
+
+   // 눈송이 파티클
+   const snowflakes = [];
+   for (let i = 0; i < 200; i++) {
+      const snowGeometry = new THREE.SphereGeometry(0.05, 4, 4);
+      const snowMaterial = new THREE.MeshBasicMaterial({ color: 0xFFFFFF });
+      const snowflake = new THREE.Mesh(snowGeometry, snowMaterial);
+      snowflake.position.set(
+         (Math.random() - 0.5) * 40,
+         Math.random() * 20,
+         (Math.random() - 0.5) * 40
+      );
+      snowflakes.push(snowflake);
+      scene.add(snowflake);
+   }
+
+   // 애니메이션
+   let time = 0;
+   function animate() {
+      requestAnimationFrame(animate);
+      time += 0.02;
+
+      // 루돌프들 점프 모션
+      reindeers.forEach((reindeer, index) => {
+         reindeer.position.y = -1 + Math.abs(Math.sin(time * 2 + index * 0.5)) * 0.5;
+         reindeer.position.x += 0.03;
+         if (reindeer.position.x > 15) reindeer.position.x = -15;
+      });
+
+      // 산타 움직임
+      santa.position.x += 0.03;
+      santa.position.y = -1 + Math.abs(Math.sin(time * 2)) * 0.3;
+      if (santa.position.x > 15) santa.position.x = -15;
+
+      // 썰매 움직임
+      sled.position.x += 0.03;
+      sled.position.y = -0.7 + Math.abs(Math.sin(time * 2)) * 0.3;
+      if (sled.position.x > 15) sled.position.x = -15;
+
+      // 눈 내리기
+      snowflakes.forEach(snowflake => {
+         snowflake.position.y -= 0.05;
+         snowflake.position.x += Math.sin(time + snowflake.position.z) * 0.02;
+         if (snowflake.position.y < -1) {
+            snowflake.position.y = 20;
+         }
+      });
+
+      // 별 반짝임
+      stars.material.opacity = 0.6 + Math.sin(time * 3) * 0.2;
+
+      renderer.render(scene, camera);
+   }
+   animate();
+
+   // 윈도우 리사이즈
+   window.addEventListener('resize', () => {
+      camera.aspect = window.innerWidth / window.innerHeight;
+      camera.updateProjectionMatrix();
+      renderer.setSize(window.innerWidth, window.innerHeight);
+   });
+
+   // 마우스 따라다니는 트레일 (일관된 스타일로 JS 수정)
+   let mouseX = 0;
+   let mouseY = 0;
+   let lastTime = 0;
+
+   document.addEventListener('mousemove', (e) => {
+      mouseX = e.clientX;
+      mouseY = e.clientY;
+
+      const currentTime = Date.now();
+      if (currentTime - lastTime > 40) { // 생성 빈도를 40ms로 통일
+         createStarTrail(mouseX, mouseY);
+         lastTime = currentTime;
+      }
+   });
+
+   function createStarTrail(x, y) {
+      const star = document.createElement('div');
+      star.className = 'star-trail';
+      star.style.left = x + 'px';
+      star.style.top = y + 'px';
+      document.body.appendChild(star);
+
+      setTimeout(() => {
+         star.remove();
+      }, 1500); // CSS 애니메이션 시간과 일치
+   }
+</script>
+
 </body>
 </html>
