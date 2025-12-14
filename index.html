@@ -1,260 +1,361 @@
 <!DOCTYPE HTML>
-<!--
-        Verti by HTML5 UP
-        html5up.net | @ajlkn
-        Free for personal and commercial use under the CCA 3.0 license (html5up.net/license)
--->
 <html>
-  <head>
-    <title>Vestra Well (Вестра Велл) | Lina (Инчхон, Намдон)</title>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no" />
-    <link rel="stylesheet" href="assets/css/main.css" />
-  </head>
+<head>
+	<title>Vestra Well - Главная</title>
+	<meta charset="utf-8" />
+	<meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no" />
+	<link rel="stylesheet" href="assets/css/main.css" />
 
-  <body class="is-preload homepage">
-    <div id="page-wrapper">
+	<style>
+		/* 3D Canvas 배경 */
+		#canvas-background {
+			position: fixed;
+			top: 0;
+			left: 0;
+			width: 100%;
+			height: 100%;
+			z-index: -1;
+			/* 은하계 배경 그라데이션 */
+			background: linear-gradient(135deg, #02011b 0%, #08053a 50%, #150849 100%);
+		}
 
-      <!-- Header -->
-      <div id="header-wrapper">
-        <header id="header" class="container">
+		/* 마우스 따라다니는 별들 (선명도 및 잔상 문제 해결) */
+		.star-trail {
+			position: fixed;
+			width: 3px;
+			height: 3px;
+			background: #ffffff;
+			border-radius: 50%;
+			pointer-events: none;
+			z-index: 99999;
+			/* 착시를 유발하는 그림자 최소화 */
+			box-shadow: 0 0 5px rgba(255, 255, 255, 1);
+			animation: fadeout 1.5s ease-out forwards;
+		}
 
-          <!-- Logo -->
-          <div id="logo">
-            <h1><a href="index.html">Vestra Well <span style="font-weight: 400;">(Вестра Велл)</span></a></h1>
-            <span>Lina · Инчхон (Намдон)</span>
-          </div>
+		@keyframes fadeout {
+			0% {
+				opacity: 1;
+				transform: scale(1);
+			}
+			100% {
+				opacity: 0;
+				transform: scale(0.1);
+			}
+		}
 
-          <!-- Nav -->
-          <nav id="nav">
-            <ul>
-              <li class="current"><a href="index.html">Главная</a></li>
-              <li><a href="no-sidebar.html">О нас</a></li>
-              <li><a href="left-sidebar.html">Услуги</a></li>
-              <li><a href="right-sidebar.html">Контакты</a></li>
-            </ul>
-          </nav>
+		/* === 1. 래퍼 요소의 배경을 강제로 투명하게 설정 (HTML5 UP 충돌 해결) === */
+		#header-wrapper, #banner-wrapper, #features-wrapper, #main-wrapper, #footer-wrapper {
+			background-color: transparent !important;
+		}
 
-        </header>
-      </div>
+		/* === 2. 콘텐츠 섹션 (Glassmorphism) 투명도 및 가독성 강화 === */
+		#header, #banner section, #main section, .features section, #content section, #sidebar .widget, .row article {
+			background-color: rgba(255, 255, 255, 0.05) !important;
+			backdrop-filter: blur(8px);
+			-webkit-backdrop-filter: blur(8px);
+			border-radius: 10px;
+			border: 1px solid rgba(255, 255, 255, 0.2);
+			box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
+		}
 
-      <!-- Banner -->
-      <div id="banner-wrapper">
-        <div id="banner" class="box container">
-          <div class="row">
-            <div class="col-7 col-12-medium">
-              <h2>Индивидуальный уход для тела и нервной системы — после профессиональной оценки состояния.</h2>
-              <p>
-                Терапевтический подход: персональная программа для устойчивого восстановления.<br />
-                Инчхон (Намдон) · Запись: KakaoTalk / Instagram DM
-              </p>
-            </div>
-            <div class="col-5 col-12-medium">
-              <ul>
-                <li><a href="right-sidebar.html" class="button large icon solid fa-arrow-circle-right">Запись / Вопросы</a></li>
-                <li><a href="left-sidebar.html" class="button alt large icon solid fa-question-circle">Посмотреть услуги</a></li>
-              </ul>
-            </div>
-          </div>
-        </div>
-      </div>
+		/* HTML5 UP 템플릿의 다른 섹션/컨테이너 배경도 투명하게 강제 오버라이드 */
+		#header, #banner, #main, .features, #main-wrapper > .container, #footer-wrapper {
+			background-color: transparent !important;
+		}
 
-      <!-- Features -->
-      <div id="features-wrapper">
-        <div class="container">
-          <div class="row">
+		/* 콘텐츠 박스 간 배경 투명 처리 */
+		#main .wrapper {
+			background-color: transparent !important;
+		}
 
-            <div class="col-4 col-12-medium">
-              <section class="box feature">
-                <a href="#" class="image featured"><img src="images/pic01.jpg" alt="" /></a>
-                <div class="inner">
-                  <header>
-                    <h2>Индивидуальная терапия</h2>
-                    <p>Персональный подход</p>
-                  </header>
-                  <p>Сначала оцениваем самочувствие, затем подбираем давление, ритм и зоны фокуса для лучшего восстановления.</p>
+		/* === 3. 버튼 크기 조정 (텍스트 길이에 맞춰 작게) === */
+		.button {
+			display: inline-block !important;
+			width: auto !important;
 
-                  <header>
-                    <h2>Миофасциальное расслабление</h2>
-                    <p>Myofascial Release</p>
-                  </header>
-                  <p>Мягко снимаем зажимы и ограничения подвижности через работу с фасциями — для ощущения лёгкости и свободы.</p>
+			background: linear-gradient(135deg, rgba(100, 100, 255, 0.4), rgba(150, 100, 255, 0.3)) !important;
+			border: 2px solid rgba(255, 255, 255, 0.6) !important;
+			box-shadow: 0 0 20px rgba(100, 100, 255, 0.4);
+			transition: all 0.3s ease;
+		}
 
-                  <header>
-                    <h2>Стресс и сон</h2>
-                    <p>Перезагрузка нервной системы</p>
-                  </header>
-                  <p>Уход с акцентом на дыхание и ритм помогает снизить перенапряжение и поддержать глубокий отдых и восстановление.</p>
-                </div>
-              </section>
-            </div>
+		.button:hover {
+			background: linear-gradient(135deg, rgba(150, 150, 255, 0.6), rgba(200, 150, 255, 0.5)) !important;
+			box-shadow: 0 0 30px rgba(150, 150, 255, 0.7);
+			transform: translateY(-3px);
+		}
 
-            <div class="col-4 col-12-medium">
-              <section class="box feature">
-                <a href="#" class="image featured"><img src="images/pic02.jpg" alt="" /></a>
-                <div class="inner">
-                  <header>
-                    <h2>Терапия под ваш запрос</h2>
-                    <p>Зоны · состояние · интенсивность</p>
-                  </header>
-                  <p>Длительность и программа отличаются в зависимости от зоны, состояния и степени напряжения: 60 / 90 / 120 минут.</p>
-                </div>
-              </section>
-            </div>
+		/* 텍스트 가독성 강화 */
+		body { color: #ffffff !important; }
+		h1, h2, h3, h4, h5, h6 { color: #ffffff !important; text-shadow: 0 0 5px rgba(0, 0, 0, 0.8); }
+		p, li, a { color: #e8e8e8 !important; text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.6); }
+		a:hover { color: #ffffff !important; text-shadow: 0 0 10px rgba(150, 200, 255, 0.8); }
 
-            <div class="col-4 col-12-medium">
-              <section class="box feature">
-                <a href="#" class="image featured"><img src="images/pic03.jpg" alt="" /></a>
-                <div class="inner">
-                  <header>
-                    <h2>Комфорт и конфиденциальность</h2>
-                    <p>Только по предварительной записи</p>
-                  </header>
-                  <p>Открыто указываем только район: Инчхон, Намдон. Подробности локации сообщаем после подтверждения записи.</p>
-                </div>
-              </section>
-            </div>
+		/* 개별 섹션 패딩 유지 */
+		#header { padding: 1.5em 0; }
+		#banner { padding: 5em 0; }
+		#features-wrapper { padding: 6em 0; }
+		#main-wrapper { padding: 6em 0; }
 
-          </div>
-        </div>
-      </div>
+	</style>
+</head>
 
-      <!-- Main -->
-      <div id="main-wrapper">
-        <div class="container">
-          <div class="row gtr-200">
+<body class="is-preload homepage">
 
-            <!-- Sidebar (left column) -->
-            <div class="col-4 col-12-medium">
-              <div id="sidebar">
-                <section class="widget">
-                  <h3>Запись</h3>
-                  <p>
-                    Индивидуальный уход 1:1 в районе <strong>Инчхон, Намдон</strong>.<br />
-                    После короткой консультации подбираем программу под ваше состояние.
-                  </p>
+<canvas id="canvas-background"></canvas>
 
-                  <ul class="style2">
-                    <li><a href="right-sidebar.html">Перейти на страницу записи/вопросов</a></li>
-                    <li><a href="left-sidebar.html">Подробнее об услугах</a></li>
-                    <li><a href="no-sidebar.html">О Lina</a></li>
-                  </ul>
+<div id="page-wrapper">
 
-                  <a href="right-sidebar.html" class="button icon solid fa-arrow-circle-right">Написать сейчас</a>
-                </section>
-              </div>
-            </div>
+	<audio id="cello-bgm" src="assets/music/cello_bgm.mp3" loop autoplay></audio>
 
-            <!-- Content (right column) -->
-            <div class="col-8 col-12-medium imp-medium">
-              <div id="content">
-                <section class="last">
-                  <h2>Чем Vestra Well отличается</h2>
-                  <p>
-                    <strong>Vestra Well</strong> делает акцент не на «сильном надавливании», а на
-                    <strong>оценке состояния и точном воздействии ровно в нужном объёме</strong>.<br />
-                    Мы учитываем взаимосвязь напряжения, боли и стресса и поддерживаем устойчивое восстановление.
-                  </p>
+	<div id="header-wrapper">
+		<header id="header" class="container">
 
-                  <p>
-                    <strong>Процесс</strong><br />
-                    1) короткий опрос / проверка самочувствия → 2) индивидуальная программа → 3) оценка изменений + рекомендации по домашнему уходу
-                  </p>
+			<div id="logo">
+				<h1><a href="index.html">Vestra Well</a></h1>
+				<span>Lina · Инчхон (Намдон)</span>
+			</div>
 
-                  <a href="no-sidebar.html" class="button icon solid fa-arrow-circle-right">О Lina</a>
-                </section>
-              </div>
-            </div>
+			<nav id="nav">
+				<ul>
+					<li class="current"><a href="index.html">Главная</a></li>
+					<li><a href="no-sidebar.html">О нас</a></li>
+					<li><a href="left-sidebar.html">Услуги</a></li>
+					<li><a href="right-sidebar.html">Контакты</a></li>
+				</ul>
+			</nav>
 
-          </div>
-        </div>
-      </div>
+		</header>
+	</div>
 
-      <!-- Footer -->
-      <div id="footer-wrapper">
-        <footer id="footer" class="container">
-          <div class="row">
-            <div class="col-3 col-6-medium col-12-small">
-              <section class="widget links">
-                <h3>Разделы</h3>
-                <ul class="style2">
-                  <li><a href="no-sidebar.html">О нас</a></li>
-                  <li><a href="left-sidebar.html">Услуги</a></li>
-                  <li><a href="right-sidebar.html">Контакты</a></li>
-                  <li><a href="right-sidebar.html">Запись</a></li>
-                  <li><a href="index.html">Главная</a></li>
-                </ul>
-              </section>
-            </div>
+	<div id="banner-wrapper">
+		<div class="container">
+			<section id="banner">
+				<h2>Добро пожаловать в Vestra Well</h2>
+				<p>Индивидуальный уход для вашего комфорта и восстановления</p>
+				<a href="left-sidebar.html" class="button icon solid fa-arrow-circle-right">Услуги</a>
+			</section>
+		</div>
+	</div>
 
-            <div class="col-3 col-6-medium col-12-small">
-              <section class="widget links">
-                <h3>График</h3>
-                <ul class="style2">
-                  <li>Пн–Пт: 10:00–20:00</li>
-                  <li>Только по записи</li>
-                  <li>60 / 90 / 120 минут</li>
-                  <li>Интенсивность: мягко/средне/интенсивно</li>
-                  <li>Район: Инчхон, Намдон</li>
-                </ul>
-              </section>
-            </div>
+	<div id="features-wrapper">
+		<div class="container">
+			<div class="row">
+				<div class="col-4 col-12-medium">
+					<section>
+						<span class="icon solid major fa-hands"></span>
+						<h3>Индивидуальный подход</h3>
+						<p>Учитываем ваше самочувствие, зоны дискомфорта и пожелания по интенсивности.</p>
+					</section>
+				</div>
 
-            <div class="col-3 col-6-medium col-12-small">
-              <section class="widget links">
-                <h3>Как написать</h3>
-                <ul class="style2">
-                  <li>Желаемая дата и время</li>
-                  <li>Зоны (шея/плечи/спина/поясница/ноги)</li>
-                  <li>Желаемая интенсивность</li>
-                  <li>Важные нюансы по здоровью (если есть)</li>
-                  <li>60/90/120 минут</li>
-                </ul>
-              </section>
-            </div>
+				<div class="col-4 col-12-medium">
+					<section>
+						<span class="icon solid major fa-clock"></span>
+						<h3>Удобный график</h3>
+						<p>Работаем с понедельника по пятницу с 10:00 до 20:00. Запись заранее.</p>
+					</section>
+				</div>
 
-            <div class="col-3 col-6-medium col-12-small">
-              <section class="widget contact last">
-                <h3>Контакты</h3>
-                <ul>
-                  <li>
-                    <a href="INSTAGRAM_URL_HERE" class="icon brands fa-instagram" target="_blank" rel="noopener">
-                      <span class="label">Instagram</span>
-                    </a>
-                  </li>
-                </ul>
-                <p>
-                  <strong>Инчхон, Намдон</strong><br />
-                  Запись: KakaoTalk / Instagram DM<br />
-                  <a href="right-sidebar.html">Контакты / Запись</a>
-                </p>
-              </section>
-            </div>
-          </div>
+				<div class="col-4 col-12-medium">
+					<section>
+						<span class="icon solid major fa-heart"></span>
+						<h3>Уютная атмосфера</h3>
+						<p>Создаём комфортные условия для вашего полного расслабления и отдыха.</p>
+					</section>
+				</div>
+			</div>
+		</div>
+	</div>
 
-          <div class="row">
-            <div class="col-12">
-              <div id="copyright">
-                <ul class="menu">
-                  <li>&copy; Vestra Well. All rights reserved</li>
-                  <li>Design: <a href="http://html5up.net">HTML5 UP</a></li>
-                </ul>
-              </div>
-            </div>
-          </div>
+	<div id="main-wrapper">
+		<div class="container">
+			<div class="row gtr-200">
+				<div class="col-4 col-12-medium">
 
-        </footer>
-      </div>
+					<div id="sidebar">
+						<section class="widget">
+							<h3>Актуальное предложение</h3>
+							<p>
+								Новым клиентам - 10 минут дополнительного времени при первом посещении.
+							</p>
+							<div class="image featured">
+							</div>
+							<footer>
+								<a href="right-sidebar.html" class="button icon solid fa-info-circle">Записаться</a>
+							</footer>
+						</section>
+					</div>
 
-    </div>
+				</div>
+				<div class="col-8 col-12-medium">
 
-    <!-- Scripts -->
-    <script src="assets/js/jquery.min.js"></script>
-    <script src="assets/js/jquery.dropotron.min.js"></script>
-    <script src="assets/js/browser.min.js"></script>
-    <script src="assets/js/breakpoints.min.js"></script>
-    <script src="assets/js/util.js"></script>
-    <script src="assets/js/main.js"></script>
+					<div id="content">
+						<section class="last">
+							<h2>Почему выбирают Vestra Well</h2>
+							<p>
+								Мы не просто делаем массаж, мы помогаем вам восстановить баланс и энергию.
+								Каждый сеанс – это ваше время, посвящённое заботе о себе.
+							</p>
+							<footer>
+								<a href="no-sidebar.html" class="button icon solid fa-arrow-circle-right">Узнать о нас</a>
+							</footer>
+						</section>
+					</div>
 
-  </body>
+				</div>
+			</div>
+		</div>
+	</div>
+
+	<div id="footer-wrapper">
+		<footer id="footer" class="container">
+			<div class="row">
+				<div class="col-12">
+					<div id="copyright">
+						<ul class="menu">
+							<li>&copy; Vestra Well. All rights reserved</li>
+							<li>Design: <a href="http://html5up.net">HTML5 UP</a></li>
+						</ul>
+					</div>
+				</div>
+			</div>
+		</footer>
+	</div>
+
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script>
+	// 3D 우주 배경 (Three.js) - JavaScript 코드는 유지합니다.
+	const canvas = document.getElementById('canvas-background');
+	const scene = new THREE.Scene();
+	const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+	const renderer = new THREE.WebGLRenderer({ canvas: canvas, alpha: true });
+
+	renderer.setSize(window.innerWidth, window.innerHeight);
+	camera.position.z = 5;
+
+	// 별 생성 (9000개로 늘려 은하수 효과)
+	const starGeometry = new THREE.BufferGeometry();
+	const starCount = 9000;
+	const positions = new Float32Array(starCount * 3);
+	const velocities = new Float32Array(starCount);
+
+	for (let i = 0; i < starCount * 3; i++) {
+		positions[i] = (Math.random() - 0.5) * 100;
+		if (i % 3 === 0) {
+			positions[i+2] = positions[i+2] * 0.5;
+		}
+	}
+
+	for (let i = 0; i < starCount; i++) {
+		velocities[i] = 0.0001 + Math.random() * 0.001;
+	}
+
+	starGeometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
+	starGeometry.setAttribute('velocity', new THREE.BufferAttribute(velocities, 1));
+
+	const starMaterial = new THREE.PointsMaterial({
+		color: 0xffffff,
+		size: 0.08,
+		transparent: true,
+		opacity: 0.7
+	});
+
+	const stars = new THREE.Points(starGeometry, starMaterial);
+	scene.add(stars);
+
+	// 은하계 배경 효과 (성운/안개)
+	const fogColor = new THREE.Color(0x0a0a50);
+	scene.fog = new THREE.Fog(fogColor, 10, 50);
+
+	// 광원 추가 (별에 입체감을 주기 위함)
+	const ambientLight = new THREE.AmbientLight(0x404040, 3);
+	scene.add(ambientLight);
+
+	// 애니메이션
+	let time = 0;
+	const positionAttribute = stars.geometry.attributes.position;
+	const velocityAttribute = stars.geometry.attributes.velocity;
+
+	function animate() {
+		requestAnimationFrame(animate);
+		time += 0.01;
+
+		// 별 배경 회전
+		stars.rotation.x += 0.00005;
+		stars.rotation.y += 0.0001;
+
+		// 별 반짝임 효과
+		stars.material.opacity = 0.6 + Math.sin(time * 0.5) * 0.2;
+
+		// 별 움직임 (약간의 이동)
+		for (let i = 0; i < starCount; i++) {
+			positionAttribute.array[i * 3 + 1] -= velocityAttribute.array[i];
+
+			if (positionAttribute.array[i * 3 + 1] < -50) {
+				positionAttribute.array[i * 3 + 1] = 50;
+			}
+		}
+		positionAttribute.needsUpdate = true;
+
+
+		renderer.render(scene, camera);
+	}
+	animate();
+
+	// 윈도우 리사이즈
+	window.addEventListener('resize', () => {
+		camera.aspect = window.innerWidth / window.innerHeight;
+		camera.updateProjectionMatrix();
+		renderer.setSize(window.innerWidth, window.innerHeight);
+	});
+
+	// === 마우스 따라다니는 별 효과 ===
+	let mouseX = 0;
+	let mouseY = 0;
+	let lastTime = 0;
+
+	document.addEventListener('mousemove', (e) => {
+		mouseX = e.clientX;
+		mouseY = e.clientY;
+
+		const currentTime = Date.now();
+		if (currentTime - lastTime > 40) {
+			createStarTrail(mouseX, mouseY);
+			lastTime = currentTime;
+		}
+	});
+
+	function createStarTrail(x, y) {
+		const star = document.createElement('div');
+		star.className = 'star-trail';
+		star.style.left = x + 'px';
+		star.style.top = y + 'px';
+		document.body.appendChild(star);
+
+		setTimeout(() => {
+			star.remove();
+		}, 1500);
+	}
+
+    // 🎧 배경음악 JavaScript 재생 코드 삽입
+    document.addEventListener('DOMContentLoaded', () => {
+        const bgm = document.getElementById('cello-bgm');
+
+        // 브라우저의 자동 재생 정책을 우회하기 위해 사용자 상호작용 후 재생 시도
+        // 사용자 클릭/터치 이벤트가 발생하면 음악을 재생합니다.
+        document.body.addEventListener('click', () => {
+            bgm.volume = 0.4; // 소리 크기 40%
+            bgm.play().catch(error => {
+                // 자동 재생 실패 시 에러 콘솔에 출력 (사용자는 볼 수 없음)
+                console.log("Audio auto-play blocked. Please click to allow sound.", error);
+            });
+        }, { once: true }); // 첫 상호작용 후에만 시도
+    });
+</script>
+
+</body>
 </html>
