@@ -5,12 +5,102 @@
 	<meta charset="utf-8" />
 	<meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no" />
 	<link rel="stylesheet" href="assets/css/main.css" />
+
+	<style>
+		/* 3D Canvas 배경 */
+		#canvas-background {
+			position: fixed;
+			top: 0;
+			left: 0;
+			width: 100%;
+			height: 100%;
+			z-index: -1;
+			/* 은하계 배경 그라데이션 */
+			background: linear-gradient(135deg, #02011b 0%, #08053a 50%, #150849 100%);
+		}
+
+		/* 마우스 따라다니는 별들 (index.html과 동일하게 밝게 수정) */
+		.star-trail {
+			position: fixed;
+			width: 3px;
+			height: 3px;
+			background: #ffffff;
+			border-radius: 50%;
+			pointer-events: none;
+			z-index: 99999; /* Z-Index를 최고로 높여 검은 구름 현상 방지 */
+			box-shadow: 0 0 5px rgba(255, 255, 255, 1); /* 단순 발광 효과 */
+			animation: fadeout 1.5s ease-out forwards;
+		}
+
+		@keyframes fadeout {
+			0% {
+				opacity: 1;
+				transform: scale(1);
+			}
+			100% {
+				opacity: 0;
+				transform: scale(0.1);
+			}
+		}
+
+		/* === 1. 래퍼 요소의 배경을 강제로 투명하게 설정 (HTML5 UP 충돌 해결) === */
+		#header-wrapper, #main-wrapper, #footer-wrapper {
+			background-color: transparent !important;
+		}
+
+		/* === 2. 콘텐츠 섹션 (Glassmorphism) 투명도 및 가독성 강화 === */
+		/* 사이드바, 콘텐츠, 헤더, 위젯 등 모든 콘텐츠 박스에 적용 */
+		#header, #main section, #content section, #sidebar .widget, .row article {
+			/* 투명도를 0.05로 설정하여 배경이 잘 비치면서도 존재감을 유지 */
+			background-color: rgba(255, 255, 255, 0.05) !important;
+			backdrop-filter: blur(8px);
+			-webkit-backdrop-filter: blur(8px);
+			border-radius: 10px;
+			border: 1px solid rgba(255, 255, 255, 0.2);
+			box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
+		}
+
+		/* HTML5 UP 템플릿의 다른 섹션/컨테이너 배경도 투명하게 강제 오버라이드 */
+		#header, #main-wrapper > .container, #footer-wrapper, #content, #sidebar {
+			background-color: transparent !important;
+		}
+
+		/* === 3. 버튼 크기 조정 (텍스트 길이에 맞춰 작게) === */
+		.button {
+			display: inline-block !important;
+			width: auto !important;
+
+			background: linear-gradient(135deg, rgba(100, 100, 255, 0.4), rgba(150, 100, 255, 0.3)) !important;
+			border: 2px solid rgba(255, 255, 255, 0.6) !important;
+			box-shadow: 0 0 20px rgba(100, 100, 255, 0.4);
+			transition: all 0.3s ease;
+		}
+
+		.button:hover {
+			background: linear-gradient(135deg, rgba(150, 150, 255, 0.6), rgba(200, 150, 255, 0.5)) !important;
+			box-shadow: 0 0 30px rgba(150, 150, 255, 0.7);
+			transform: translateY(-3px);
+		}
+
+		/* 텍스트 가독성 강화 (index.html과 동일하게 설정) */
+		body { color: #ffffff !important; }
+		h1, h2, h3, h4, h5, h6 { color: #ffffff !important; text-shadow: 0 0 5px rgba(0, 0, 0, 0.8); }
+		p, li, a { color: #e8e8e8 !important; text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.6); }
+		a:hover { color: #ffffff !important; text-shadow: 0 0 10px rgba(150, 200, 255, 0.8); }
+
+		/* 기타 패딩/마진 설정 유지 */
+		#header { padding: 1.5em 0; }
+		#main-wrapper { padding: 6em 0; }
+
+	</style>
 </head>
 
 <body class="is-preload left-sidebar">
+
+<canvas id="canvas-background"></canvas>
+
 <div id="page-wrapper">
 
-	<!-- Header -->
 	<div id="header-wrapper">
 		<header id="header" class="container">
 
@@ -31,12 +121,10 @@
 		</header>
 	</div>
 
-	<!-- Main -->
 	<div id="main-wrapper">
 		<div class="container">
 			<div class="row gtr-200">
 
-				<!-- Sidebar (Left) -->
 				<div class="col-4 col-12-medium">
 					<div id="sidebar">
 						<section class="widget">
@@ -56,69 +144,57 @@
 									<small>ID: Alinakimmiron</small>
 								</li>
 							</ul>
-							<a href="right-sidebar.html" class="button icon solid fa-envelope">Контакты</a>
-						</section>
-
-						<section class="widget">
-							<h3>График</h3>
-							<p><strong>Пн–Пт 10:00–20:00</strong><br />Только по записи</p>
-						</section>
-
-						<section class="widget">
-							<h3>Длительность</h3>
-							<ul>
-								<li>60 минут</li>
-								<li>90 минут</li>
-								<li>120 минут</li>
-							</ul>
-							<small>Программа зависит от зоны, состояния и интенсивности.</small>
+							<footer>
+								<a href="right-sidebar.html" class="button icon solid fa-info-circle">Перейти к контактам</a>
+							</footer>
 						</section>
 					</div>
 				</div>
 
-				<!-- Content -->
 				<div class="col-8 col-12-medium imp-medium">
 					<div id="content">
 						<section class="last">
-							<h2>Услуги</h2>
+							<h2>Наши услуги</h2>
 							<p>
-								Перед началом мы уточняем ваше самочувствие и запрос.
-								Далее подбираем индивидуальный уход с акцентом на проблемные зоны.
+								Мы предлагаем индивидуальные сеансы, сфокусированные на вашем самочувствии.
+								Длительность и интенсивность подбираются под клиента.
 							</p>
 
 							<hr />
 
-							<h3>Основные направления</h3>
-							<div class="row">
-								<div class="col-6 col-12-small">
-									<h4>Верхняя часть тела</h4>
-									<p>Шея / плечи / верх спины — снятие напряжения и усталости.</p>
-								</div>
-								<div class="col-6 col-12-small">
-									<h4>Ноги и циркуляция</h4>
-									<p>Для тех, кто много стоит или сидит; ощущение тяжести и отёчности.</p>
-								</div>
-								<div class="col-6 col-12-small">
-									<h4>Баланс всего тела</h4>
-									<p>Комплексный вариант, когда напряжение ощущается в нескольких зонах.</p>
-								</div>
-								<div class="col-6 col-12-small">
-									<h4>Релакс</h4>
-									<p>Мягкий, спокойный уход для отдыха и восстановления.</p>
-								</div>
-							</div>
+							<h3>Длительность и цены</h3>
+							<ul>
+								<li><strong>60 минут:</strong> 80,000 KRW</li>
+								<li><strong>90 минут:</strong> 110,000 KRW</li>
+								<li><strong>120 минут:</strong> 140,000 KRW</li>
+							</ul>
 
 							<hr />
 
-							<h3>Что написать при записи</h3>
-							<ul>
-								<li>Желаемая дата и время</li>
-								<li>Сила воздействия: мягко / средне / интенсивно</li>
-								<li>Где беспокоит (шея, плечи, поясница, ноги и т.д.)</li>
-								<li>Важные нюансы по здоровью (если есть)</li>
-							</ul>
+							<h3>Зоны воздействия</h3>
+							<p>
+								Мы уделяем внимание всем зонам напряжения, включая:
+							</p>
+							<div class="row">
+								<div class="col-6 col-12-small">
+									<ul>
+										<li>Шея и плечи</li>
+										<li>Верхняя часть спины</li>
+										<li>Поясница и тазовая область</li>
+									</ul>
+								</div>
+								<div class="col-6 col-12-small">
+									<ul>
+										<li>Ноги (бёдра, икры)</li>
+										<li>Руки и кисти</li>
+										<li>Ступни (дополнительно)</li>
+									</ul>
+								</div>
+							</div>
 
-							<a href="right-sidebar.html" class="button icon solid fa-calendar">Запись / Вопросы</a>
+							<footer>
+								<a href="right-sidebar.html" class="button icon solid fa-arrow-circle-right">Записаться на сеанс</a>
+							</footer>
 						</section>
 					</div>
 				</div>
@@ -127,7 +203,6 @@
 		</div>
 	</div>
 
-	<!-- Footer -->
 	<div id="footer-wrapper">
 		<footer id="footer" class="container">
 			<div class="row">
@@ -145,12 +220,121 @@
 
 </div>
 
-<!-- Scripts -->
-<script src="assets/js/jquery.min.js"></script>
-<script src="assets/js/jquery.dropotron.min.js"></script>
-<script src="assets/js/browser.min.js"></script>
-<script src="assets/js/breakpoints.min.js"></script>
-<script src="assets/js/util.js"></script>
-<script src="assets/js/main.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script>
+	// 3D 우주 배경 (Three.js) - JavaScript 코드는 유지합니다.
+	const canvas = document.getElementById('canvas-background');
+	const scene = new THREE.Scene();
+	const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+	const renderer = new THREE.WebGLRenderer({ canvas: canvas, alpha: true });
+
+	renderer.setSize(window.innerWidth, window.innerHeight);
+	camera.position.z = 5;
+
+	// 별 생성 (9000개로 늘려 은하수 효과)
+	const starGeometry = new THREE.BufferGeometry();
+	const starCount = 9000;
+	const positions = new Float32Array(starCount * 3);
+	const velocities = new Float32Array(starCount);
+
+	for (let i = 0; i < starCount * 3; i++) {
+		positions[i] = (Math.random() - 0.5) * 100;
+		if (i % 3 === 0) {
+			positions[i+2] = positions[i+2] * 0.5;
+		}
+	}
+
+	for (let i = 0; i < starCount; i++) {
+		velocities[i] = 0.0001 + Math.random() * 0.001;
+	}
+
+	starGeometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
+	starGeometry.setAttribute('velocity', new THREE.BufferAttribute(velocities, 1));
+
+	const starMaterial = new THREE.PointsMaterial({
+		color: 0xffffff,
+		size: 0.08,
+		transparent: true,
+		opacity: 0.7
+	});
+
+	const stars = new THREE.Points(starGeometry, starMaterial);
+	scene.add(stars);
+
+	// 은하계 배경 효과 (성운/안개)
+	const fogColor = new THREE.Color(0x0a0a50);
+	scene.fog = new THREE.Fog(fogColor, 10, 50);
+
+	// 광원 추가 (별에 입체감을 주기 위함)
+	const ambientLight = new THREE.AmbientLight(0x404040, 3);
+	scene.add(ambientLight);
+
+	// 애니메이션
+	let time = 0;
+	const positionAttribute = stars.geometry.attributes.position;
+	const velocityAttribute = stars.geometry.attributes.velocity;
+
+	function animate() {
+		requestAnimationFrame(animate);
+		time += 0.01;
+
+		// 별 배경 회전
+		stars.rotation.x += 0.00005;
+		stars.rotation.y += 0.0001;
+
+		// 별 반짝임 효과
+		stars.material.opacity = 0.6 + Math.sin(time * 0.5) * 0.2;
+
+		// 별 움직임 (약간의 이동)
+		for (let i = 0; i < starCount; i++) {
+			positionAttribute.array[i * 3 + 1] -= velocityAttribute.array[i];
+
+			if (positionAttribute.array[i * 3 + 1] < -50) {
+				positionAttribute.array[i * 3 + 1] = 50;
+			}
+		}
+		positionAttribute.needsUpdate = true;
+
+
+		renderer.render(scene, camera);
+	}
+	animate();
+
+	// 윈도우 리사이즈
+	window.addEventListener('resize', () => {
+		camera.aspect = window.innerWidth / window.innerHeight;
+		camera.updateProjectionMatrix();
+		renderer.setSize(window.innerWidth, window.innerHeight);
+	});
+
+	// === 마우스 따라다니는 별 효과 ===
+	let mouseX = 0;
+	let mouseY = 0;
+	let lastTime = 0;
+
+	document.addEventListener('mousemove', (e) => {
+		mouseX = e.clientX;
+		mouseY = e.clientY;
+
+		const currentTime = Date.now();
+		if (currentTime - lastTime > 40) {
+			createStarTrail(mouseX, mouseY);
+			lastTime = currentTime;
+		}
+	});
+
+	function createStarTrail(x, y) {
+		const star = document.createElement('div');
+		star.className = 'star-trail';
+		star.style.left = x + 'px';
+		star.style.top = y + 'px';
+		document.body.appendChild(star);
+
+		setTimeout(() => {
+			star.remove();
+		}, 1500);
+	}
+</script>
+
 </body>
 </html>
